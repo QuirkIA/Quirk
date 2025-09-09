@@ -46,17 +46,18 @@ export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
     baileysMessage.message?.ephemeralMessage?.message?.documentMessage?.caption ||
     '';
     
-  const audioTextMessage: string =
-    baileysMessage.message?.audioMessage?.caption ||
-    baileysMessage.message?.ephemeralMessage?.message?.audioMessage?.caption ||
-    '';
-    
   // Handle viewOnce messages
   const viewOnceTextMessage: string =
     baileysMessage.message?.viewOnceMessage?.message?.imageMessage?.caption ||
     baileysMessage.message?.viewOnceMessage?.message?.videoMessage?.caption ||
     baileysMessage.message?.viewOnceMessageV2?.message?.imageMessage?.caption ||
     baileysMessage.message?.viewOnceMessageV2?.message?.videoMessage?.caption ||
+    '';
+    
+  // Handle quoted messages - messages that are replies might contain commands
+  const quotedTextMessage: string = 
+    baileysMessage.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation ||
+    baileysMessage.message?.extendedTextMessage?.contextInfo?.quotedMessage?.extendedTextMessage?.text ||
     '';
 
   // Combine all possible text sources
@@ -65,8 +66,8 @@ export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
                      imageTextMessage || 
                      videoTextMessage || 
                      documentTextMessage || 
-                     audioTextMessage || 
-                     viewOnceTextMessage;
+                     viewOnceTextMessage ||
+                     quotedTextMessage;
 
   // Debug logging for message extraction issues
   if (!fullMessage && baileysMessage.message) {
