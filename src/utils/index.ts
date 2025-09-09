@@ -19,25 +19,67 @@ import { logger } from './logger';
 let commandCache: ICommandImports | null = null;
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
+  // Extract text from various message types with more robust handling
   const textMessage: string =
-    baileysMessage.message?.conversation! ??
-    baileysMessage.message?.ephemeralMessage?.message?.conversation!;
+    baileysMessage.message?.conversation ||
+    baileysMessage.message?.ephemeralMessage?.message?.conversation ||
+    '';
+  
   const extendedTextMessage: string =
-    baileysMessage.message?.extendedTextMessage?.text! ??
-    baileysMessage.message?.ephemeralMessage?.message?.extendedTextMessage
-      ?.text!;
+    baileysMessage.message?.extendedTextMessage?.text ||
+    baileysMessage.message?.ephemeralMessage?.message?.extendedTextMessage?.text ||
+    '';
+    
   const imageTextMessage: string =
-    baileysMessage.message?.imageMessage?.caption! ??
-    baileysMessage.message?.ephemeralMessage?.message?.videoMessage?.caption!;
+    baileysMessage.message?.imageMessage?.caption ||
+    baileysMessage.message?.ephemeralMessage?.message?.imageMessage?.caption ||
+    '';
+    
   const videoTextMessage: string =
-    baileysMessage.message?.videoMessage?.caption! ??
-    baileysMessage.message?.ephemeralMessage?.message?.imageMessage?.caption!;
+    baileysMessage.message?.videoMessage?.caption ||
+    baileysMessage.message?.ephemeralMessage?.message?.videoMessage?.caption ||
+    '';
+    
+  // Handle additional message types that might contain commands
+  const documentTextMessage: string =
+    baileysMessage.message?.documentMessage?.caption ||
+    baileysMessage.message?.ephemeralMessage?.message?.documentMessage?.caption ||
+    '';
+    
+  const audioTextMessage: string =
+    baileysMessage.message?.audioMessage?.caption ||
+    baileysMessage.message?.ephemeralMessage?.message?.audioMessage?.caption ||
+    '';
+    
+  // Handle viewOnce messages
+  const viewOnceTextMessage: string =
+    baileysMessage.message?.viewOnceMessage?.message?.imageMessage?.caption ||
+    baileysMessage.message?.viewOnceMessage?.message?.videoMessage?.caption ||
+    baileysMessage.message?.viewOnceMessageV2?.message?.imageMessage?.caption ||
+    baileysMessage.message?.viewOnceMessageV2?.message?.videoMessage?.caption ||
+    '';
 
-  const fullMessage =
-    textMessage || extendedTextMessage || imageTextMessage || videoTextMessage;
+  // Combine all possible text sources
+  const fullMessage = textMessage || 
+                     extendedTextMessage || 
+                     imageTextMessage || 
+                     videoTextMessage || 
+                     documentTextMessage || 
+                     audioTextMessage || 
+                     viewOnceTextMessage;
+
+  // Debug logging for message extraction issues
+  if (!fullMessage && baileysMessage.message) {
+    logger.debug('Message extraction failed for message type:', {
+      messageKeys: Object.keys(baileysMessage.message),
+      remoteJid: baileysMessage?.key?.remoteJid,
+      messageId: baileysMessage?.key?.id
+    });
+  }
 
   if (!fullMessage) {
     return {
+      fullMessage: '',
       remoteJid: baileysMessage?.key?.remoteJid,
       prefix: '',
       isGroup: baileysMessage?.key?.remoteJid?.endsWith('@g.us'),
