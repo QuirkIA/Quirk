@@ -26,7 +26,7 @@ export const connect: () => Promise<WASocket> = async () => {
     const bot = makeWASocket({
       browser: Browsers.appropriate('Desktop'),
       logger: logger,
-      printQRInTerminal: false,
+      printQRInTerminal: true,
       defaultQueryTimeoutMs: 30 * 1000,
       auth: state,
       shouldIgnoreJid: (jid) => {
@@ -181,8 +181,9 @@ export const connect: () => Promise<WASocket> = async () => {
       }
 
       if (qr !== undefined) {
-        logger.debug('🔑 QR Code gerado');
+        console.log('\n🔑 QR Code gerado! Escaneie o código abaixo:\n');
         qrcode.generate(qr, { small: true });
+        logger.info('🔑 QR Code exibido no terminal');
       }
     });
 
