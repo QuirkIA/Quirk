@@ -98,6 +98,14 @@ export const connect: () => Promise<WASocket> = async () => {
 
     bot.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
+      
+      // Handle QR code first, before processing connection state
+      if (qr !== undefined) {
+        console.log('\n🔑 QR Code gerado! Escaneie o código abaixo:\n');
+        qrcode.generate(qr, { small: true });
+        logger.info('🔑 QR Code exibido no terminal');
+      }
+      
       switch (connection) {
         case 'close': {
           const statusCode =
@@ -178,12 +186,6 @@ export const connect: () => Promise<WASocket> = async () => {
         case 'connecting':
           logger.debug('🔄 Conectando...');
           break;
-      }
-
-      if (qr !== undefined) {
-        console.log('\n🔑 QR Code gerado! Escaneie o código abaixo:\n');
-        qrcode.generate(qr, { small: true });
-        logger.info('🔑 QR Code exibido no terminal');
       }
     });
 
