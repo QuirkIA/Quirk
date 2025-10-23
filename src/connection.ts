@@ -18,15 +18,35 @@ import { shouldIgnoreSpamHard } from './middlewares/onAntiSpam';
 export const connect: () => Promise<WASocket> = async () => {
   try {
     console.log('🟢 Iniciando conexão com Whatsapp\n');
+    const defaultVersion = [2, 3000, 1028397221];
+    const envVer = process.env.WA_VERSION;
+    const cliVer = process.argv[2];
+    const parseVer = (v: string) =>
+      v
+        .split(',')
+        .map((x) => parseInt(x.trim(), 10))
+        .filter((n) => !Number.isNaN(n));
+
+    let versionArr = defaultVersion.slice();
+    if (cliVer) versionArr = parseVer(cliVer);
+    else if (envVer) versionArr = parseVer(envVer);
+
+    const version: [number, number, number] = [
+      versionArr[0] ?? defaultVersion[0],
+      versionArr[1] ?? defaultVersion[1],
+      versionArr[2] ?? defaultVersion[2],
+    ];
+
+    logger.info(`Using WA Web version: ${version.join(',')}`);
 
     const { state, saveCreds } = await useMultiFileAuthState(
       './assets/auth/baileys',
     );
-
     const bot = makeWASocket({
       browser: Browsers.appropriate('Desktop'),
       logger: logger,
-      printQRInTerminal: false,
+      printQRInTerminal: true,
+      version,
       defaultQueryTimeoutMs: 30 * 1000,
       auth: state,
       shouldIgnoreJid: (jid) => {
@@ -98,6 +118,24 @@ export const connect: () => Promise<WASocket> = async () => {
 
     bot.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
+      try {
+        logger.debug(
+          'connection.update full payload: ' + JSON.stringify(update),
+        );
+        if (update) {
+          Object.keys(update).forEach((key) => {
+            logger.debug(
+              `Update-Key: ${key}, Value: ${JSON.stringify(
+                (update as any)[key],
+              )}`,
+            );
+          });
+        }
+      } catch (err) {
+        logger.debug(
+          'Failed to stringify connection.update payload: ' + String(err),
+        );
+      }
       switch (connection) {
         case 'close': {
           const statusCode =
@@ -120,8 +158,7 @@ export const connect: () => Promise<WASocket> = async () => {
               );
             } catch (err) {
               logger.error(
-                '❌🚫 Erro ao remover a pasta de autenticação:',
-                err,
+                '❌🚫 Erro ao remover a pasta de autenticação: ' + String(err),
               );
             }
           } else {
@@ -197,7 +234,9 @@ export const connect: () => Promise<WASocket> = async () => {
               `📞❌ Chamada recusada automaticamente de: ${call.from}`,
             );
           } catch (error) {
-            logger.error(`❌ Erro ao recusar chamada de ${call.from}:`, error);
+            logger.error(
+              `❌ Erro ao recusar chamada de ${call.from}: ` + String(error),
+            );
           }
         }
       }
@@ -205,7 +244,7 @@ export const connect: () => Promise<WASocket> = async () => {
 
     return bot;
   } catch (error) {
-    logger.error('❌ Erro na conexão com WhatsApp:', error);
+    logger.error('❌ Erro na conexão com WhatsApp: ' + String(error));
     throw error;
   }
 };
