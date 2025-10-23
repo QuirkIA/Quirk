@@ -26,7 +26,7 @@ export const connect: () => Promise<WASocket> = async () => {
     const bot = makeWASocket({
       browser: Browsers.appropriate('Desktop'),
       logger: logger,
-      printQRInTerminal: true,
+      printQRInTerminal: false,
       defaultQueryTimeoutMs: 30 * 1000,
       auth: state,
       shouldIgnoreJid: (jid) => {
