@@ -113,8 +113,8 @@ export class ErrorRecovery {
   try {
    return await operation();
   } catch (error) {
-   logger.error(`❌ ${errorMessage}:`, error);
-   return fallback;
+    logger.error({ error }, `❌ ${errorMessage}:`);
+    return fallback;
   }
  }
 }

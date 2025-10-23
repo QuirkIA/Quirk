@@ -25,7 +25,7 @@ class PrismaSingleton {
       PrismaSingleton.isConnected = true;
       logger.info('✅ Prisma conectado ao banco de dados');
     } catch (error) {
-      logger.error('❌ Erro ao conectar Prisma:', error);
+      logger.error({ error }, '❌ Erro ao conectar Prisma:');
       throw error;
     }
   }
@@ -37,7 +37,7 @@ class PrismaSingleton {
         PrismaSingleton.isConnected = false;
         logger.info('🔌 Prisma desconectado do banco de dados');
       } catch (error) {
-        logger.error('❌ Erro ao desconectar Prisma:', error);
+        logger.error({ error }, '❌ Erro ao desconectar Prisma:');
       }
     }
   }
@@ -49,7 +49,7 @@ class PrismaSingleton {
       await PrismaSingleton.instance.$queryRaw`SELECT 1`;
       return true;
     } catch (error) {
-      logger.error('❌ Health check do Prisma falhou:', error);
+      logger.error({ error }, '❌ Health check do Prisma falhou:');
       return false;
     }
   }

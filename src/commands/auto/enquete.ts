@@ -1,4 +1,3 @@
-import { g } from "@squarecloud/api/lib/index-C7hO988G";
 import { general } from "../../configuration/general";
 import { ICommand } from "../../interfaces/ICommand";
 import { getOllamaResults } from "../../services/gpt";

@@ -11,7 +11,7 @@ export async function sendRandomAutoCommandFromCache(bot: WASocket): Promise<voi
     const raw = fs.readFileSync(cachePath, "utf-8");
     cache = JSON.parse(raw);
   } catch (err) {
-    logger.error("Erro ao ler cache.json:", err);
+    logger.error({ err }, "Erro ao ler cache.json:");
     return;
   }
   if (!Array.isArray(cache) || cache.length === 0) {
@@ -37,6 +37,6 @@ export async function sendRandomAutoCommandFromCache(bot: WASocket): Promise<voi
   try {
     await autoCommand(bot, newMessage);
   } catch (err) {
-    logger.error('Erro ao executar autoCommand para JID', randomDest, err);
+    logger.error({ err, randomDest }, 'Erro ao executar autoCommand para JID');
   }
 }

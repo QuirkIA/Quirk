@@ -7,12 +7,12 @@ import { sendRandomAutoCommandFromCache } from "./middlewares/sendRandomAutoComm
 require("dotenv").config();
 
 process.on('uncaughtException', (error) => {
-  logger.error('Erro não capturado:', error);
+  logger.error({ error }, 'Erro não capturado:');
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Promise rejeitada não tratada:', reason);
+  logger.error({ reason }, 'Promise rejeitada não tratada:');
   process.exit(1);
 });
 
@@ -34,7 +34,7 @@ async function start(): Promise<void> {
 
     await onMessagesUpsert(bot);
   } catch (error) {
-    logger.error('Erro durante a inicialização:', error);
+    logger.error({ error }, 'Erro durante a inicialização:');
     process.exit(1);
   }
 }

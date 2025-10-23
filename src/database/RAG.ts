@@ -83,7 +83,7 @@ export async function cacheGroupInfo(bot: WASocket, groupJid: string): Promise<v
     cacheData[groupJid] = groupInfoWithNames;
     fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), "utf-8");
   } catch (err) {
-    logger.error("Erro ao salvar informações do grupo em cache:", err);
+    logger.error({ err }, "Erro ao salvar informações do grupo em cache:");
   }
 }
 
