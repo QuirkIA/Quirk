@@ -23,16 +23,13 @@ const command: ICommand = {
 
     // Parse scaling mode from arguments
     const arg = data.args[0]?.toLowerCase();
-    let scaleFilter = "scale=512:512"; // default: distort to fit
+    let scaleFilter = "scale=512:512"; // default: distort to fit (fill mode)
     
-    // Fill mode: distort image to fill 512x512
-    if (arg === "f" || arg === "full" || arg === "p" || arg === "preencher") {
-      scaleFilter = "scale=512:512"; // force distort
-    }
     // Crop mode: zoom and crop to fill 512x512
-    else if (arg === "c" || arg === "corta" || arg === "crop") {
+    if (arg === "c" || arg === "corta" || arg === "crop") {
       scaleFilter = "scale=512:512:force_original_aspect_ratio=increase,crop=512:512";
     }
+    // Note: Fill mode (f, full, p, preencher) uses the default scale filter
 
     const outputPath = path.resolve(general.TEMP_DIR, `${uuidv4()}.webp`);
 
