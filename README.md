@@ -38,6 +38,42 @@ Installation requires **node.LTS**
 - [Linux](https://nodejs.org/pt-br/download/)
 - [MacOS](https://nodejs.org/pt-br/download/)
 
+## Environment Configuration
+
+Before running Quirk, you need to configure your environment variables:
+
+### Development Mode
+For development, create a `.env.local` file in the project root:
+```bash
+cp .env.template .env.local
+```
+
+Then edit `.env.local` with your configuration values.
+
+### Production Mode
+For production, create a `.env.production` file in the project root:
+```bash
+cp .env.template .env.production
+```
+
+Then edit `.env.production` with your production configuration values.
+
+**Important:** The bot will automatically check for these files and display helpful error messages if they're missing.
+
+## Running the Bot
+
+### Development
+```bash
+npm install
+npm run dev
+```
+
+### Production
+```bash
+npm install
+npm run start
+```
+
 If after reading the guide you still encounter issues, feel free to join the
 [Official Discord Server](https://discord.gg/BgQrmc6TnC) and ask for help in the **#Support** channel.
 

@@ -1,10 +1,13 @@
 import "./polyfill-crypto";
+import { loadEnvironment } from "./config/env-loader";
+
+// Load environment variables first
+loadEnvironment();
 
 import onMessagesUpsert from "./middlewares/onMessagesUpsert";
 import { logger } from "./utils/logger";
 import { connect } from "./connection";
 import { sendRandomAutoCommandFromCache } from "./middlewares/sendRandomAutoCommand";
-require("dotenv").config();
 
 process.on('uncaughtException', (error) => {
   logger.error({ error }, 'Erro não capturado:');

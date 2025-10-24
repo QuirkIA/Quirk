@@ -1,6 +1,9 @@
 import path from "path";
 import fs from "fs";
-require("dotenv").config();
+import { loadEnvironment } from "../config/env-loader";
+
+// Load environment variables first
+loadEnvironment();
 
 interface GeneralConfig {
   BOT_NAME: string;
