@@ -66,8 +66,26 @@ export const general: GeneralConfig = {
   PREFIX_EMOJI: "🤖",
   COMMANDS_DIR: getCommandsDir(),
   TEMP_DIR: ensureDirectoryExists(path.join(projectRoot, "assets", "temp")),
-  CACHE_DIR: ensureDirectoryExists(path.join(projectRoot, "cache")),  TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
-  NUMBERS_HOSTS: process.env.NUMBER_HOST ? JSON.parse(process.env.NUMBER_HOST.replace(/'/g, '"')) : [],
+  CACHE_DIR: ensureDirectoryExists(path.join(projectRoot, "cache")),
+  TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
+  NUMBERS_HOSTS: ((): string[] => {
+    const raw = process.env.NUMBER_HOST;
+    if (!raw) return [];
+    let val = raw.trim();
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    try {
+      if (val.startsWith("[") || val.startsWith("{")) {
+        return JSON.parse(val.replace(/'/g, '"'));
+      }
+    } catch (e) {
+    }
+    if (val.includes(",")) {
+      return val.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    return [val];
+  })(),
   NUMBER_BOT: process.env.NUMBER_BOT ? `${process.env.NUMBER_BOT}@s.whatsapp.net` : "",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   GROUP_SECURE: [
