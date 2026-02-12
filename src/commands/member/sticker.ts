@@ -11,7 +11,7 @@ const command: ICommand = {
   name: "Sticker",
   description: "Comando para criar figurinhas",
   commands: ["sticker", "figurinha", "f", "s"],
-  usage: `${general.PREFIX}sticker <envie a imagem/vídeo/gif ou marque>`,
+  usage: `${general.PREFIX}sticker [f|full|p|preencher|c|corta|crop] <envie a imagem/vídeo/gif ou marque>`,
   handle: async (data) => {
     await data.sendWaitReact();
 
@@ -20,13 +20,24 @@ const command: ICommand = {
         "Você precisa marcar uma imagem/vídeo/gif responder a uma imagem/vídeo/gif"
       );
     }
+
+    // Parse scaling mode from arguments
+    const arg = data.args[0]?.toLowerCase();
+    let scaleFilter = "scale=512:512"; // default: distort to fit (fill mode)
+    
+    // Crop mode: zoom and crop to fill 512x512
+    if (arg === "c" || arg === "corta" || arg === "crop") {
+      scaleFilter = "scale=512:512:force_original_aspect_ratio=increase,crop=512:512";
+    }
+    // Note: Fill mode (f, full, p, preencher) uses the default scale filter
+
     const outputPath = path.resolve(general.TEMP_DIR, `${uuidv4()}.webp`);
 
     if (data.isImage) {
       const inputPath = await downloadImage(data.baileysMessage);
 
       exec(
-        `ffmpeg -i ${inputPath} -vf scale=512:512 ${outputPath}`,
+        `ffmpeg -i ${inputPath} -vf ${scaleFilter} ${outputPath}`,
         async (error: any) => {
           if (error) {
             await data.sendErrorReply("Ocorreu um erro ao criar a figurinha");
@@ -58,7 +69,7 @@ const command: ICommand = {
         return;
       }
       exec(
-        `ffmpeg -i ${inputPath} -y -vcodec libwebp -fs 0.99M -filter_complex "[0:v] scale=512:512,fps=12,pad=512:512:-1:-1:color=white@0.0,split[a][b];[a]palettegen=reserve_transparent=on:transparency_color=ffffff[p];[b][p]paletteuse" -f webp ${outputPath}`,
+        `ffmpeg -i ${inputPath} -y -vcodec libwebp -fs 0.99M -filter_complex "[0:v] ${scaleFilter},fps=12,pad=512:512:-1:-1:color=white@0.0,split[a][b];[a]palettegen=reserve_transparent=on:transparency_color=ffffff[p];[b][p]paletteuse" -f webp ${outputPath}`,
         async (error: any) => {
           if (error) {
             fs.unlinkSync(inputPath!);
